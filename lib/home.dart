@@ -1,3 +1,4 @@
+import 'package:billsplit/results_page.dart';
 import 'package:flutter/material.dart';
 import 'const.dart';
 
@@ -9,11 +10,26 @@ class BillSplit extends StatefulWidget {
 }
 
 class _BillSplitState extends State<BillSplit> {
+  double friendsvalue = 0.0;
+  double tip = 0.0;
+  String tax = '0';
+  String bill = '';
+
   buildButton(String text) {
     return Expanded(
       child: OutlinedButton(
           style: OutlinedButton.styleFrom(padding: EdgeInsets.all(20)),
-          onPressed: () {},
+          onPressed: () {
+            if (text == 'C') {
+              setState(() {
+                bill = '';
+              });
+            } else {
+              setState(() {
+                bill += text;
+              });
+            }
+          },
           child: Text(
             text,
             style: googleTextStyle_15,
@@ -25,6 +41,7 @@ class _BillSplitState extends State<BillSplit> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.grey.shade200,
         body: SingleChildScrollView(
           child: Container(
             margin: EdgeInsets.only(left: 20, right: 20),
@@ -54,7 +71,7 @@ class _BillSplitState extends State<BillSplit> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Total", style: googleTextStyle_20),
-                            Text("34", style: googleTextStyle_35),
+                            Text(bill, style: googleTextStyle_35),
                           ],
                         ),
                       ),
@@ -86,15 +103,15 @@ class _BillSplitState extends State<BillSplit> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "10",
+                                  friendsvalue.round().toString(),
                                   style: googleTextStyle_15,
                                 ),
                                 Text(
-                                  "14 %",
+                                  "$tax %",
                                   style: googleTextStyle_15,
                                 ),
                                 Text(
-                                  "15",
+                                  '${tip.round().toString()}TL',
                                   style: googleTextStyle_15,
                                 ),
                               ],
@@ -115,8 +132,13 @@ class _BillSplitState extends State<BillSplit> {
                   divisions: 15,
                   activeColor: Colors.yellow.shade400,
                   inactiveColor: Colors.grey.shade400,
-                  value: 12,
-                  onChanged: (value) {},
+                  label: '${friendsvalue.round()}',
+                  value: friendsvalue,
+                  onChanged: (value) {
+                    setState(() {
+                      friendsvalue = value;
+                    });
+                  },
                 ),
                 SizedBox(
                   height: 10,
@@ -142,28 +164,52 @@ class _BillSplitState extends State<BillSplit> {
                                 Container(
                                   width: 40,
                                   height: 40,
-                                  child: FloatingActionButton(
-                                    onPressed: () {},
-                                    backgroundColor: Colors.grey.shade400,
-                                    child: Icon(
-                                      Icons.remove,
-                                      color: Colors.black,
+                                  child: InkWell(
+                                    onLongPress: () {
+                                      setState(() {
+                                        tip <= 0 ? tip = 0 : tip--;
+                                      });
+                                    },
+                                    child: FloatingActionButton(
+                                      heroTag: "btn-",
+                                      onPressed: () {
+                                        setState(() {
+                                          tip <= 0 ? tip = 0 : tip--;
+                                        });
+                                      },
+                                      backgroundColor: Colors.grey.shade400,
+                                      child: Icon(
+                                        Icons.remove,
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
                                 ),
                                 Text(
-                                  '20',
+                                  '${tip.round().toString()}TL',
                                   style: googleTextStyle_15,
                                 ),
                                 Container(
                                   width: 40,
                                   height: 40,
-                                  child: FloatingActionButton(
-                                    onPressed: () {},
-                                    backgroundColor: Colors.grey.shade400,
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.black,
+                                  child: InkWell(
+                                    onLongPress: () {
+                                      setState(() {
+                                        tip++;
+                                      });
+                                    },
+                                    child: FloatingActionButton(
+                                      heroTag: "btn+",
+                                      onPressed: () {
+                                        setState(() {
+                                          tip++;
+                                        });
+                                      },
+                                      backgroundColor: Colors.grey.shade400,
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -184,6 +230,11 @@ class _BillSplitState extends State<BillSplit> {
                       child: Padding(
                         padding: const EdgeInsets.all(7.0),
                         child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              tax = value;
+                            });
+                          },
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
@@ -229,13 +280,22 @@ class _BillSplitState extends State<BillSplit> {
                     // Bu kısmı mathgamedeki gibi refactor edebilirim
                     buildButton("."),
                     buildButton(0.toString()),
-                    buildButton("-"),
+                    buildButton("C"),
                   ],
                 ),
                 TextButton(
                   style: TextButton.styleFrom(
                       backgroundColor: Colors.green.shade500),
-                  onPressed: () {},
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ResultPage(
+                          bill: bill,
+                          friendsvalue: friendsvalue,
+                          tax: tax,
+                          tip: tip),
+                    ),
+                  ),
                   child: Center(
                     child: Text(
                       "Split Bill",
